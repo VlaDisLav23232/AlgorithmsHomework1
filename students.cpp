@@ -122,12 +122,24 @@ bool StudentDB_V1_Hash::initialize_from_csv(const std::string& filename) {
     std::string line;
     if (!std::getline(file, line)) return false; // Skip header
 
+    size_t line_count = 0;
+    while (std::getline(file, line)) {
+        line_count++;
+    }
+
+    if (line_count == 0) return true;
+
+    all_students_storage.reserve(line_count);
+
+    file.clear();
+    file.seekg(0);
+    if (!std::getline(file, line)) return false;
+
     while (std::getline(file, line)) {
         
         std::stringstream ss(line);
         std::string token;
         Student s;
-        try {
         std::getline(ss, s.m_name, ',');
         std::getline(ss, s.m_surname, ','); 
         std::getline(ss, s.m_email, ','); 
@@ -137,12 +149,6 @@ bool StudentDB_V1_Hash::initialize_from_csv(const std::string& filename) {
         std::getline(ss, s.m_group, ',');
         std::getline(ss, token, ','); s.m_rating = std::stof(token);
         std::getline(ss, s.m_phone_number);
-
-        } catch (const std::exception& e) {
-            // Якщо stoi або stof не спрацював, пропускаємо цей рядок
-            std::cerr << "Warning: Skipping malformed row. Error: " << e.what() << "\n";
-            continue; // Переходимо до наступного рядка
-        }
 
         all_students_storage.push_back(std::move(s));
 
@@ -243,26 +249,32 @@ bool StudentDB_V2_BST::initialize_from_csv(const std::string& filename) {
     std::string line;
     if (!std::getline(file, line)) return false; // Skip header
 
+    size_t line_count = 0;
+    while (std::getline(file, line)) {
+        line_count++;
+    }
+
+    if (line_count == 0) return true;
+
+    all_students_storage.reserve(line_count);
+
+    file.clear();
+    file.seekg(0);
+    if (!std::getline(file, line)) return false;
+
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string token;
         Student s;
-        try {
         std::getline(ss, s.m_name, ',');
-        std::getline(ss, s.m_surname, ','); 
-        std::getline(ss, s.m_email, ','); 
+        std::getline(ss, s.m_surname, ',');
+        std::getline(ss, s.m_email, ',');
         std::getline(ss, token, ','); s.m_birth_year = std::stoi(token);
         std::getline(ss, token, ','); s.m_birth_month = std::stoi(token);
         std::getline(ss, token, ','); s.m_birth_day = std::stoi(token);
-        std::getline(ss, s.m_group, ',');
+        std::getline(ss, s.m_group, ','); 
         std::getline(ss, token, ','); s.m_rating = std::stof(token);
-        std::getline(ss, s.m_phone_number);
-
-        } catch (const std::exception& e) {
-            // Якщо stoi або stof не спрацював, пропускаємо цей рядок
-            std::cerr << "Warning: Skipping malformed row. Error: " << e.what() << "\n";
-            continue; // Переходимо до наступного рядка
-        }
+        std::getline(ss, s.m_phone_number); 
 
         all_students_storage.push_back(std::move(s));
 
@@ -368,26 +380,32 @@ bool StudentDB_V3_Vector::initialize_from_csv(const std::string& filename) {
     std::map<std::string, std::vector<Student*>> temp_group_index;
     std::map<std::string, std::vector<Student*>> temp_surname_index;
 
+    size_t line_count = 0;
+    while (std::getline(file, line)) {
+        line_count++;
+    }
+
+    if (line_count == 0) return true;
+
+    all_students_storage.reserve(line_count);
+
+    file.clear();
+    file.seekg(0);
+    if (!std::getline(file, line)) return false;
+
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string token;
         Student s;
-        try {
         std::getline(ss, s.m_name, ',');
-        std::getline(ss, s.m_surname, ','); 
-        std::getline(ss, s.m_email, ','); 
+        std::getline(ss, s.m_surname, ',');
+        std::getline(ss, s.m_email, ',');
         std::getline(ss, token, ','); s.m_birth_year = std::stoi(token);
         std::getline(ss, token, ','); s.m_birth_month = std::stoi(token);
         std::getline(ss, token, ','); s.m_birth_day = std::stoi(token);
         std::getline(ss, s.m_group, ',');
         std::getline(ss, token, ','); s.m_rating = std::stof(token);
-        std::getline(ss, s.m_phone_number);
-
-        } catch (const std::exception& e) {
-            // Якщо stoi або stof не спрацював, пропускаємо цей рядок
-            std::cerr << "Warning: Skipping malformed row. Error: " << e.what() << "\n";
-            continue; // Переходимо до наступного рядка
-        }
+        std::getline(ss, s.m_phone_number); 
 
         all_students_storage.push_back(std::move(s));
         Student* new_student_ptr = &all_students_storage.back();

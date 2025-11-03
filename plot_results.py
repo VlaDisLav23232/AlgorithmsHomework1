@@ -1,61 +1,48 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
+import seaborn as sns
+import matplotlib.ticker as ticker
 
-# Назва файлу з результатами
-RESULTS_FILE = "results.csv"
-PLOTS_DIR = "plots"
+df = pd.read_csv('results.csv')
+df['DB_Size'] = df['DB_Size'].astype(int)
 
-def create_plots(df):
-    """
-    Створює та зберігає графіки на основі DataFrame з результатами.
-    """
-    if not os.path.exists(PLOTS_DIR):
-        os.makedirs(PLOTS_DIR)
+plt.figure(figsize=(12, 7))
 
-    # Унікальні типи баз даних для побудови
-    db_types = df['DB_Type'].unique()
-    
-    # === Графік: Продуктивність (Операції за 10 сек) ===
-    plt.figure(figsize=(12, 7))
-    
-    for db_type in db_types:
-        subset = df[df['DB_Type'] == db_type]
-        plt.plot(subset['DB_Size'], subset['Operations'], marker='o', label=db_type)
+sns.lineplot(
+    data=df,
+    x='DB_Size',
+    y='Operations_Per_10s',
+    hue='DB_Type',
+    marker='o',
+    dashes=False,
+    palette='deep',
+    linewidth=2
+)
 
-    plt.title('Продуктивність: Кількість операцій за 10 секунд', fontsize=16)
-    plt.xlabel('Розмір бази даних (кількість рядків)', fontsize=12)
-    plt.ylabel('Кількість операцій (більше - краще)', fontsize=12)
-    plt.xscale('log') # Логарифмічна шкала для розміру
-    plt.yscale('log') # Логарифмічна шкала для операцій
-    plt.grid(True, which="both", ls="--")
-    plt.legend()
-    
-    plot_path_perf = os.path.join(PLOTS_DIR, 'benchmark_performance.png')
-    plt.savefig(plot_path_perf)
-    print(f"Графік продуктивності збережено: {plot_path_perf}")
-    plt.close()
+plt.xscale('log')
 
+plt.xticks(
+    df['DB_Size'].unique(),
+    labels=[f'{x:,}' for x in df['DB_Size'].unique()]
+)
+plt.gca().get_xaxis().set_major_formatter(ticker.FuncFormatter(lambda x, pos: f'{int(x):,}'))
 
-def main():
-    """
-    Головна функція: читає CSV та запускає створення графіків.
-    """
-    try:
-        df = pd.read_csv(RESULTS_FILE)
-    except FileNotFoundError:
-        print(f"Помилка: Файл '{RESULTS_FILE}' не знайдено.")
-        print("Будь ласка, спершу запустіть C++ програму для бенчмаркінгу, щоб згенерувати цей файл.")
-        return
-    except pd.errors.EmptyDataError:
-        print(f"Помилка: Файл '{RESULTS_FILE}' порожній.")
-        return
+plt.yscale('log')
 
-    print("CSV з результатами успішно завантажено:")
-    print(df)
-    print("\nСтворення графіків...")
-    create_plots(df)
-    print(f"\nГотово. Графік знаходиться в теці '{PLOTS_DIR}'.")
+formatter = ticker.ScalarFormatter(useMathText=True)
+formatter.set_scientific(True)
 
-if __name__ == "__main__":
-    main()
+formatter.set_powerlimits((-1, 9))
+plt.gca().yaxis.set_major_formatter(formatter)
+
+plt.title('Database Performance Benchmark (50:10:5 Op1:Op2:Op3)', fontsize=16)
+plt.xlabel('Database Size (Number of Students) - Log Scale', fontsize=12)
+plt.ylabel('Operations Per 10 Seconds ($10^x$)', fontsize=12)
+
+plt.legend(title='DB Structure', loc='upper right', frameon=True)
+plt.grid(True, which="both", ls="--", c='0.7', alpha=0.6)
+plt.tight_layout()
+
+plt.savefig('result.png')
+print("Plot saved as 'result.png'")
+plt.show()
