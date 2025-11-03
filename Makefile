@@ -41,6 +41,8 @@ clean:
 	$(RM) sorted_students_radix.csv
 	$(RM) sorted_students.csv
 	$(RM) result.png
+	$(RM) plot_results.py
+	$(RM) sorted_students_standard.csv
 	@echo "Done"
 
 .PHONY: all clean
